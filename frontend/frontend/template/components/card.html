@@ -1,0 +1,25 @@
+{% load convert_str_date %}
+<div class="card mb-3">
+    <div class="card-body p-2" style="position: relative; color: 3c096c !important;">
+        <p>{{parameter}}</p>
+        {% if value > n_max %}
+        <h2 style="color: red !important;">{{value}} <small>{{unit}}</small></h2><br>
+        {% else %}
+        <h2 style="color: 3c096c !important;">{{value}} <small>{{unit}}</small></h2><br>
+        {% endif %}
+        {% if timestamp %}
+        <small><b>Last Sync</b>: {{timestamp|custom_date_time}}</small><br/>
+        {% else %}
+        <small><b>Last Sync</b>: None</small><br/>
+        {% endif %}
+        <small><b>Today's Min</b>: {{today_min}}</small> &nbsp;
+        <small><b>Today's Max</b>: {{today_max}}</small>
+    </div>
+
+    <div class="card-footer p-2">
+        <p>
+            <small>{{device}}</small>
+            <a href="{% url 'delete-widget' %}?id={{id}}"><span style="float: right;" class="text-danger"><i class="fas fa-trash"></i></span></a>
+        </p>
+    </div>
+</div>

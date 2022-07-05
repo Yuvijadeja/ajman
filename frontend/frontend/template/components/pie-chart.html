@@ -1,0 +1,29 @@
+    <div id="chart{{id}}">
+    </div>
+
+    <script type="text/javascript">
+        var chart_{{id}}_options = {
+            series: {{series|safe}},
+            chart: {
+                type: 'donut',
+                height: 350,
+            },
+            labels: {{labels|safe}},
+            responsive: [{
+                breakpoint: 480,
+                options: {
+                    chart: {
+                    width: 200
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }]
+        };
+
+        var chart{{id}} = new ApexCharts(document.querySelector("#chart{{id}}"), chart_{{id}}_options);
+        chart{{id}}.render();
+    </script>
+
+    

@@ -1,0 +1,27 @@
+{% if request.session.is_staff %}
+<div class="col">
+    <a href="{% url 'my-account' %}">
+        <h4> <span class="fas fa-user-tie"></span></h4>
+    </a>
+</div>
+<div class="col">
+    <a href="{% url 'notifications' %}">
+        <h4><span class="fas fa-bell"></span></h4>
+    </a>
+</div>
+
+
+{% else %}
+<div class="col" align="right">
+    <a href="{% url 'my-account' %}">
+        <h4> <span class="fas fa-user-tie"></span></h4>
+    </a>
+</div>
+<div class="col" align="right" style="padding-right:30px !important">
+    <a href="{% url 'notifications' %}">
+        <h4><span class="fas fa-bell"></span></h4>
+    </a>
+</div>
+
+
+{% endif %}

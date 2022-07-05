@@ -1,0 +1,239 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block content %}
+
+{% include 'components/alert.html' %}
+<div class="card">
+    <div class="card-header p-2">
+        <h5>Setup</h5>
+    </div>
+    <form action="" method="post" onsubmit="return validateForm();">
+        <div class="row">
+            {% csrf_token %}
+            <div class="col-lg-4 col-md-3 col-sm-6 p-2">
+                <label for="category" class="mb-2">Category</label>
+                <select name="category" id="category" class="form-control p-2">
+                    <option value="">All</option>
+                    {% for category in categories %}
+                    <option value="{{category.id}}">{{category.category}}</option>
+                    {% endfor %}
+                </select>
+                <small class="text-danger" id="err-category"></small>
+            </div>
+            <div class="col-lg-4 col-md-3 col-sm-6 p-2">
+                <label for="site" class="mb-2">Site</label>
+                <select name="site" id="site" class="form-control p-2">
+                    <option value="{{site.id}}">Select Site</option>
+
+                </select>
+                <small class="text-danger" id="err-site"></small>
+            </div>
+            <div class="col-lg-4 col-md-3 col-sm-6 p-2">
+                <label for="station" class="mb-2">Station</label>
+                <select name="station" id="station" class="form-control p-2">
+                    <option value="0">Select Station</option>
+                </select>
+                <small class="text-danger" id="err-station"></small>
+            </div>
+            <div class="col-lg-4 col-md-3 col-sm-6 p-2">
+                <label for="parameter" class="mb-2">Parameter</label>
+                <select name="parameter" id="parameter" class="form-control p-2">
+                    <option value="0">Select Parameter</option>
+                </select>
+                <small class="text-danger" id="err-parameter"></small>
+            </div>
+            <div class="col-lg-4 col-md-3 col-sm-6 p-2">
+                <label for="normalmin" class="mb-2"> Normal min</label>
+                <input type="text" name="normalmin" id="normalmin" class="form-control p-2">
+
+            </div>
+            <div class="col-lg-4 col-md-3 col-sm-6 p-2">
+                <label for="normalmax" class="mb-2"> Normal max</label>
+                <input type="text" name="normalmax" id="normalmax" class="form-control p-2">
+            </div>
+            <div>
+                <button type="submit" class="btn btn-secondary px-4 py-1 m-3 ">Submit</button>
+            </div>
+        </div>
+
+    </form>
+</div>
+<script type="text/javascript">
+    let nav = 1;
+    function toggleNav() {
+        if (nav) {
+            document.getElementById("sidebar").classList.remove("d-none");
+            document.getElementById("sidebar").classList.remove("d-xl-block");
+            nav = 0;
+        } else {
+            document.getElementById("sidebar").classList.add("d-none");
+            document.getElementById("sidebar").classList.add("d-xl-block");
+            nav = 1;
+        }
+    }
+
+    function fill_sites(category_id) {
+        $.getJSON("/sites/get-sites/", { id: category_id },
+            function (ret, textStatus) {
+                var options = '<option value="">Select Site</option>';
+                for (var i in ret) {
+                    if (ret[i].label == "{{selected_data.site}}") {
+                        options += '<option value="' + ret[i].label + '" selected="selected">' + ret[i].name + '</option>';
+                    } else {
+                        options += '<option value="' + ret[i].label + '">' + ret[i].name + '</option>';
+                    }
+                }
+                $("#site").html(options);
+            });
+    }
+    $(document).ready(function () {
+        $("#category").change(function () { fill_sites($(this).val()); });
+    });
+
+    function fill_station(site_id) {
+        $.getJSON("/sites/get-stations/", { id: site_id },
+            function (ret, textStatus) {
+                var options = '<option value="">Select Station</option>';
+                for (var i in ret) {
+                    if (ret[i].station == "{{selected_data.station}}") {
+                        options += '<option value="' + ret[i].station + '" selected="selected">' + ret[i].station + '</option>';
+                    } else {
+                        options += '<option value="' + ret[i].station + '">' + ret[i].station + '</option>';
+                    }
+                }
+                $("#station").html(options);
+            });
+    }
+    $(document).ready(function () {
+        $("#site").change(function () { fill_station($(this).val()); });
+    });
+
+    function fill_parameters(site_id) {
+        $.getJSON("/sites/get-parameters/", { id: site_id },
+            function (ret, textStatus) {
+                var options = '<option value="0">Select Parameter</option>';
+                for (var i in ret) {
+                    if (ret[i].parameter == "{{selected_data.parameter}}") {
+                        options += '<option value="' + ret[i].id + '" selected="selected">' + ret[i].parameter + '</option>';
+                    } else {
+                        options += '<option value="' + ret[i].id + '">' + ret[i].parameter + '</option>';
+                    }
+                }
+                $("#parameter").html(options);
+            }
+        );
+    }
+    $(document).ready(function () {
+        $("#station").change(function () { fill_parameters($(this).val()); });
+    });
+
+    function fill_min_max(parameter_id) {
+        $.getJSON("/sites/get-parameters-values/", { id: parameter_id },
+            function (ret, textStatus) {
+                for (var i in ret) {
+                    document.getElementById('normalmin').value = ret[i].normal_min;
+                    document.getElementById('normalmax').value = ret[i].normal_max;
+                }
+            }
+        );
+    }
+
+    $(document).ready(function () {
+        $("#parameter").change(function () { fill_min_max($(this).val()); });
+    });
+
+    $(document).ready(function () {
+        {% if selected_data %}
+        var category = "{{selected_data.category}}"
+        var site = "{{selected_data.site}}"
+        var station = "{{selected_data.station}}"
+
+        fill_sites(category);
+        fill_station(site);
+        fill_parameters(station);
+
+        $('#category').val(category)
+
+    {% endif %}
+    console.log("Working")
+    });
+
+    function validateCategory() {
+            var input = document.getElementById("category");
+            var error = document.getElementById("err-category");
+            var value = input.value;
+
+            if (value != 0) {
+                input.style.border = "1px solid green ";
+                error.style.display = "none ";
+                return true;
+            } else {
+                input.style.border = "1px solid red ";
+                error.innerHTML = "Category not selected!"
+                error.style.display = "block ";
+                return false;
+            }
+        }
+
+        function validateSite() {
+            var input = document.getElementById("site");
+            var error = document.getElementById("err-site");
+            var value = input.value;
+
+            if (value != 0) {
+                input.style.border = "1px solid green ";
+                error.style.display = "none ";
+                return true;
+            } else {
+                input.style.border = "1px solid red ";
+                error.innerHTML = "Site not selected!"
+                error.style.display = "block ";
+                return false;
+            }
+        }
+
+        function validateStation() {
+            var input = document.getElementById("station");
+            var error = document.getElementById("err-station");
+            var value = input.value;
+
+            if (value != 0) {
+                input.style.border = "1px solid green ";
+                error.style.display = "none ";
+                return true;
+            } else {
+                input.style.border = "1px solid red ";
+                error.innerHTML = "Station not selected!"
+                error.style.display = "block ";
+                return false;
+            }
+        }
+
+        function validateParameter() {
+            var input = document.getElementById("parameter");
+            var error = document.getElementById("err-parameter");
+            var value = input.value;
+
+            if (value != 0) {
+                input.style.border = "1px solid green ";
+                error.style.display = "none ";
+                return true;
+            } else {
+                input.style.border = "1px solid red ";
+                error.innerHTML = "Atleast one Parameter should be selected!"
+                error.style.display = "block ";
+                return false;
+            }
+        }
+
+        function validateForm() {
+            if ( validateCategory() && validateSite() && validateStation() && validateParameter() ) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+</script>
+{% endblock %}

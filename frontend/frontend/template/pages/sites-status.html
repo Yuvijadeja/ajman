@@ -1,0 +1,169 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+{% load convert_str_date %}
+{% block content %}
+
+    {% include 'components/alert.html' %}
+    <div class="row">
+        <div class="col-lg-10 col-sm-9 col-9">
+            <h3>Sites Status</h3><br>
+        </div>
+      
+    </div>
+    {% if request.session.is_staff %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header p-2">
+                    <h5>Filter Data</h5>
+                </div>
+                <div class="card-body p-2">
+                    <form action="" method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-sm-4 pe-3">
+                                <label for="category" class="mb-2">Category</label>
+                                <select name="category" id="category" class="form-control p-2">
+                                    <option value="">All</option>
+                                    {% for category in categories %}
+                                    <option value="{{category.id}}">{{category.category}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-sm-4 pe-3">
+                                <label for="status" class="mb-2">Status</label>
+                                <select name="status" id="status" class="form-control p-2">
+                                    <option value="">All</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                    <option value="Delayed">Delayed</option>
+                                </select>
+                            </div>
+                        </div><br>
+                        <input type="submit" class="btn btn-secondary px-4 py-1" name="submit" value="Filter" id="submit">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div><br>
+
+    <div class="row">
+        <div class="col-md-9 col-lg-10 pe-2 pt-2">
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fas fa-search px-3"></i>
+                </span>
+                <input type="text" class="form-control p-2" id="search" placeholder="Search...">
+              </div>
+        </div>
+        <div class="col pt-2" align="right">
+            Export Data:
+            <button onclick="generatePDF('Site Status')" class="btn btn-primary p-2">
+                <span class="fas fa-file-pdf"></span>
+            </button>&nbsp;&nbsp;
+            <button  onclick="tablesToExcel(['table',], ['Site Status',],'Sites Status.xls', 'Excel')" class="btn btn-primary p-2">
+                <span class="fas fa-file-excel"></span>
+            </button>
+        </div>
+    </div><br>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-12">
+            <div class="table-responsive">
+                <table class="table tableFixHead table-bordered" id="table">
+                    <thead class="bg-secondary text-white">
+                        <tr>
+                            <th id="bypassme">Action</th>
+                            <th onclick="sortTable(1, 'table')">Industry Code <span class="fas fa-sort"></span></th>
+                            <th onclick="sortTable(2, 'table')">Site Name <span class="fas fa-sort"></span></th>
+                            <th id="bypassme">Site Label</th>
+                            <th onclick="sortTable(4, 'table')">Category <span class="fas fa-sort"></span></th>
+                            <th id="bypassme">Address</th>
+                            <th onclick="sortTable(6, 'table')">City <span class="fas fa-sort"></span></th>
+                            <th onclick="sortTable(7, 'table')">State <span class="fas fa-sort"></span></th>
+                            <th onclick="sortTable(8, 'table')">Status <span class="fas fa-sort"></span></th>
+                            <th>First Sync</th>
+                            <th>Last Sync</th>
+                            <th onclick="sortTable(11, 'table')">Exceedance <span class="fas fa-sort"></span></th>
+                            <th id="bypassme">Latitude</th>
+                            <th id="bypassme">Longitude</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="rows">
+                        {% if realtime_response.data %}
+                        {% for key, values in realtime_response.data.items %}
+                            <tr>
+                                <td class="text-center" id="bypassme"><a href="{% url 'realtime-data' %}?id={{values.0}}">
+                                    <span class="fas fa-eye"></span>
+                                </a></td>
+                                <td>{{values.1}}</td>
+                                <td>{{values.2}}</td>
+                                <td id="bypassme">{{values.3}}</td>
+                                <td>{{values.4}}</td>
+                                <td id="bypassme">{{values.5}}</td>
+                                <td>{{values.6}}</td>
+                                <td>{{values.7}}</td>
+                                {% if values.8 == 'Inactive' %}
+                                    <td class="text-danger">Inactive</td>
+                                {% else %}
+                                    <td class="text-success">Active</td>
+                                {% endif %}
+                                {% if values.9 %}
+                                <td>{{values.9|custom_date_time}}</td>
+                                {% else %}
+                                <td>None</td>
+                                {% endif %}
+                                {% if values.10 %}
+                                <td>{{values.10|custom_date_time}}</td>
+                                {% else %}
+                                <td>None</td>
+                                {% endif %}
+                                <td>{{values.11}}</td>
+                                <td id="bypassme">{{values.12}}</td>
+                                <td id="bypassme">{{values.13}}</td>
+                            </tr>
+                        {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div><br><br>
+
+    <script type="text/javascript">
+
+        let nav = 1;
+        function toggleNav() {
+            if (nav) {
+                document.getElementById("sidebar").classList.remove("d-none");
+                document.getElementById("sidebar").classList.remove("d-xl-block");
+                nav = 0;
+            } else {
+                document.getElementById("sidebar").classList.add("d-none");
+                document.getElementById("sidebar").classList.add("d-xl-block");
+                nav = 1;
+            }
+        }
+        function toggleNav() {
+            if (nav) {
+                document.getElementById("sidebar").classList.remove("d-none");
+                document.getElementById("sidebar").classList.remove("d-xl-block");
+                nav = 0;
+            } else {
+                document.getElementById("sidebar").classList.add("d-none");
+                document.getElementById("sidebar").classList.add("d-xl-block");
+                nav = 1;
+            }
+        }
+        
+        $(document).ready(function() {
+            {% if selected_data %}
+            $('#category').val("{{selected_data.category}}")
+            $('#status').val("{{selected_data.status}}")
+            {% endif %}
+        });
+    
+    </script>
+{% endblock %}

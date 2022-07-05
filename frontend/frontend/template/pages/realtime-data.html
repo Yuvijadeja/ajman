@@ -1,0 +1,191 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+{% load convert_str_date %}
+{% block content %}
+
+    {% include 'components/alert.html' %}
+    {% for key, values in site_data.items %}
+    
+    <div class="row">
+        <div class="col-lg-10 col-sm-9 col-9">
+            <h3>{{values.2}}</h3><br>
+        </div>
+        
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body p-2">
+                    <span class="fas fa-map-marker-alt text-danger"></span> <small class="text-secondary">{{values.6}}</small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <span class="fas fa-globe text-primary"></span> <small class="text-secondary">{{values.7}}</small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <span class="fas fa-industry text-secondary"></span> <small class="text-secondary">{{values.4}}</small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <span class="fas fa-eye text-primary"></span> <small class="text-secondary">{{values.8}}</small>
+                </div>
+            </div>
+        </div>
+    </div><br>
+    {% endfor %}
+
+    <h3>Realtime Data</h3><br>
+
+    <div class="row">
+        <div class="col-12">
+            <button class="btn btn-info text-white py-2 px-3">
+                <img src="{% static 'images/effluent.png' %}" style="filter: brightness(0) invert(1);" width="24px" height="24px" alt="">
+                <a href="{% url 'realtime-data' %}?id={{site}}"></a> Effluent
+            </button>
+            <button class="btn btn-warning text-white py-2 px-3">
+                <img src="{% static 'images/emission.png' %}" style="filter: brightness(0) invert(1);" width="24px" height="24px" alt=""> Emission
+            </button>
+            <button class="btn btn-success text-white py-2 px-3">
+                <img src="{% static 'images/ambient.png' %}" style="filter: brightness(0) invert(1);" width="24px" height="24px" alt=""> Ambient
+            </button>
+        </div>
+    </div><br>
+
+    <div class="row">
+        {% for values in realtime_data%}
+        {% if values.5 == 'effluent'%}
+        <div class="col-lg-4 pe-3 pb-3">
+            <div class="card">
+                <div class="card-body p-2">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <img src="{% static 'images/effluent.png' %}" width="50" height="50" title="Effluent">        
+                        </div>
+                        <div class="col-lg-8">
+                            {% if values.12 > values.9 %}
+                            <h5 class="text-success">{{values.12}} {{values.6}}</h5>
+                            {% else %}
+                            <h5 class="text-danger">{{values.12}} {{values.6}}</h5>
+                            {% endif %}
+                            <small>{{values.4}} {{values.6}}</small><br>
+                            <small class="text-primary">Today's Min: {{values.13}}</small>&nbsp;&nbsp;
+                            <small class="text-primary">Today's Max: {{values.14}}</small><br>
+                            {% if values.11 %}
+                            <small class="text-primary">Last Sync: {{values.11|custom_date_time}}</small><br>
+                            {% else %}
+                            <small class="text-primary">Last Sync: None</small><br>
+                            {% endif %}
+                            {% if values.6 == 'pH'%}
+                            <small class="text-danger">Limit: {{values.8}}-{{values.9}} {{values.7}}</small>
+                            {% else %}
+                            <small class="text-danger">Limit: {{values.9}} {{values.7}}</small>
+                            {% endif %}
+                        </div>
+                        <div class="col-2">
+                            {% if values.3 == 'Inactive'%}
+                            <h5 class="text-center text-danger"><span class="fas fa-times-circle" title="Active"></span></h5>
+                            {% else %}
+                            <h5 class="text-center text-success"><span class="fas fa-check-circle" title="Inactive"></span></h5>
+                            {% endif %}
+                        </div>
+        
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% elif values.5 == 'ambient' %}
+        <div class="col-lg-4 pe-3 pb-3">
+            <div class="card">
+                <div class="card-body p-2">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <img src="{% static 'images/ambient.png' %}" width="50" height="50" title="Ambient">        
+                        </div>
+                        <div class="col-lg-8">
+                            {% if values.12 > values.9 %}
+                            <h5 class="text-danger">{{values.12}} {{values.6}}</h5>
+                            {% else %}
+                            <h5 class="text-success">{{values.12}} {{values.6}}</h5>
+                            {% endif %}
+                            <small>{{values.4}} {{values.6}}</small><br>
+                            <small class="text-primary">Today's Min: {{values.13}}</small>&nbsp;&nbsp;
+                            <small class="text-primary">Today's Max: {{values.14}}</small><br>
+                            {% if values.11 %}
+                            <small class="text-primary">Last Sync: {{values.11|custom_date_time}}</small><br>
+                            {% else %}
+                            <small class="text-primary">Last Sync: None</small><br>
+                            {% endif %}
+                            {% if values.6 == 'pH'%}
+                            <small class="text-danger">Limit: {{values.8}}-{{values.9}} {{values.7}}</small>
+                            {% else %}
+                            <small class="text-danger">Limit: {{values.9}} {{values.7}}</small>
+                            {% endif %}
+                        </div>
+                        <div class="col-2">
+                            {% if values.3 == 'Inactive'%}
+                            <h5 class="text-center text-danger"><span class="fas fa-times-circle" title="Active"></span></h5>
+                            {% else %}
+                            <h5 class="text-center text-success"><span class="fas fa-check-circle" title="Inactive"></span></h5>
+                            {% endif %}
+                        </div>
+        
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-lg-4 pe-3 pb-2">
+            <div class="card">
+                <div class="card-body p-2">
+                    <div class="row ">
+                        <div class="col-sm-2">
+                            <img src="{% static 'images/emission.png' %}" width="50" height="50" title="Effluent">        
+                        </div>
+                        <div class="col-sm-8">
+                            {% if values.12 > values.9 %}
+                            <h5 class="text-danger">{{values.12}} {{values.6}}</h5>
+                            {% else %}
+                            <h5 class="text-success">{{values.12}} {{values.6}}</h5>
+                            {% endif %}
+                            <small>{{values.4}} {{values.6}}</small><br>
+                            <small class="text-primary">Today's Min: {{values.13}}</small>&nbsp;&nbsp;
+                            <small class="text-primary">Today's Max: {{values.14}}</small><br>
+                            {% if values.11 %}
+                            <small class="text-primary">Last Sync: {{values.11|custom_date_time}}</small><br>
+                            {% else%}
+                            <small class="text-primary">Last Sync: None</small><br>
+                            {% endif %}
+                            {% if values.6 == 'pH'%}
+                            <small class="text-danger">Limit: {{values.8}}-{{values.9}} {{values.7}}</small>
+                            {% else %}
+                            <small class="text-danger">Limit: {{values.9}} {{values.7}}</small>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-2">
+                          {% if values.3 == 'Inactive'%}
+                            <h5 class="text-center text-danger"><span class="fas fa-times-circle" title="Active"></span></h5>
+                            {% else %}
+                            <h5 class="text-center text-success"><span class="fas fa-check-circle" title="Inactive"></span></h5>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    <br>
+
+    <script>
+        let nav = 1;
+        function toggleNav() {
+            if (nav) {
+                document.getElementById("sidebar").classList.remove("d-none");
+                document.getElementById("sidebar").classList.remove("d-xl-block");
+                nav = 0;
+            } else {
+                document.getElementById("sidebar").classList.add("d-none");
+                document.getElementById("sidebar").classList.add("d-xl-block");
+                nav = 1;
+            }
+        }
+        window.setTimeout( function() {
+        window.location.reload();
+        }, 60000);
+        
+    </script>
+
+{% endblock %}

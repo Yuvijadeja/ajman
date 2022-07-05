@@ -1,0 +1,116 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+{% load convert_str_date %}
+{% block content %}
+
+{% include 'components/alert.html' %}
+<div class="row">
+    <div class="col-lg-10 col-sm-9 col-9">
+        <h3>Audit Logs</h3><br>
+    </div>
+
+</div>
+<div class="row mb-2">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header p-2">
+                <h5>Filter Data</h5>
+            </div>
+            <div class="card-body p-2">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-sm-4 pe-3">
+                            <label for="username" class="mb-2">Username</label>
+                            <select name="username" id="username" class="form-control p-2">
+                                {% if request.user.is_staff %}
+                                <option value="">All</option>
+                                {% else %}
+                                <option value="0">Select User</option>
+                                {% endif %}
+                                {% for user in user_details %}
+                                <option value="{{user.username}}">{{user.username}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-sm-4 pe-3">
+                            <label for="action" class="mb-2">Action</label>
+                            <select name="action" id="action" class="form-control p-2">
+                                <option value="">All</option>
+                                <option value="create">Create</option>
+                                <option value="update">Update</option>
+                                <option value="delete">Delete</option>
+                                <option value="export">Export</option>
+                            </select>
+                        </div>
+                    </div>
+                    <br>
+                    <input type="submit" class="btn btn-secondary px-4 py-1" name="submit" value="Filter" id="submit">
+                </form>
+            </div>
+        </div>
+    </div>
+</div><br>
+
+<div class="row">
+    <div class="col-12">
+        <div class="input-group">
+            <span class="input-group-text">
+                <i class="fas fa-search px-3"></i>
+            </span>
+            <input type="text" class="form-control p-2" id="search" placeholder="Search...">
+        </div>
+    </div>
+</div><br>
+
+<div class="row">
+    <div class="col-12">
+        <div class="table-responsive">
+            <table class="table tableFixHead table-bordered" id="table">
+                <thead class="bg-secondary text-white">
+                    <tr>
+                        <th onclick="sortTable(0, 'table')">Timestamp <span class="fas fa-sort"></span></th>
+                        <th>User</th>
+                        <th onclick="sortTable(2, 'table')">Action <span class="fas fa-sort"></span></th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+
+                <tbody id="rows">
+                    {% for a in auditlogs.data %}
+                    <tr>
+                        <td>{{a.timestamp|custom_date_time}}</td>
+                        <td>{{a.user}}</td>
+                        <td>{{a.action}}</td>
+                        <td>{{a.description}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div><br><br>
+
+<script type="text/javascript">
+    let nav = 1;
+    function toggleNav() {
+        if (nav) {
+            document.getElementById("sidebar").classList.remove("d-none");
+            document.getElementById("sidebar").classList.remove("d-xl-block");
+            nav = 0;
+        } else {
+            document.getElementById("sidebar").classList.add("d-none");
+            document.getElementById("sidebar").classList.add("d-xl-block");
+            nav = 1;
+        }
+    }
+
+    $(document).ready(function () {
+        {% if selected_data %}
+        $('#username').val("{{selected_data.username}}")
+        $('#action').val("{{selected_data.action}}")
+        {% endif %}
+    });
+
+</script>
+{% endblock %}

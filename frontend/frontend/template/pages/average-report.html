@@ -1,0 +1,555 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block content %}
+
+{% include 'components/alert.html' %}
+<div class="row">
+    <div class="col-lg-10 col-sm-9 col-9">
+        <h3>Average Report</h3><br>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header p-2">
+                <h5>Filter Data</h5>
+            </div>
+            <div class="card-body p-2">
+                <form action="" method="post" onsubmit="return validateForm();">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-sm-4 pe-3">
+                            <label for="quickrange" class="mb-2">Quick Range</label>
+                            <select name="quickrange" id="quickrange" class="form-control p-2" onchange="quickDate()">
+                                <option value="0">Select Range</option>
+                                <option value="1">Last 1 Day</option>
+                                <option value="3">Last 3 Days</option>
+                                <option value="7">Last 7 Days</option>
+                                <option value="30">Last 30 Days</option>
+                            </select>
+                            <small class="text-danger" id="err-quickrange"></small>
+                        </div>
+                        <div class="col-sm-4 pe-3">
+                            <label for="from" class="mb-2">From Date</label>
+                            <input type="datetime-local" name="from" id="from" class="form-control p-2">
+                            <small class="text-danger" id="err-from"></small>
+                        </div>
+                        <div class="col-sm-4 pe-3">
+                            <label for="to" class="mb-2">To Date</label>
+                            <input type="datetime-local" name="to" id="to" class="form-control p-2">
+                            <small class="text-danger" id="err-to"></small>
+                        </div>
+                        <div class="col-sm-4 pe-3">
+                            <label for="category" class="mb-2">Category</label>
+                            <select name="category" id="category" class="form-control p-2">
+                                <option value="">All</option>
+                                {% for category in categories %}
+                                <option value="{{category.id}}">{{category.category}}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-danger" id="err-category"></small>
+                        </div>
+                        <div class="col-sm-4 pe-3">
+                            <label for="site" class="mb-2">Site</label>
+                            <select name="site" id="site" class="form-control p-2">
+                                <option value="{{site.id}}">Select Site</option>
+
+                            </select>
+                            <small class="text-danger" id="err-site"></small>
+                        </div>
+                        <div class="col-sm-4 pe-3">
+                            <label for="station" class="mb-2">Station</label>
+                            <select name="station" id="station" class="form-control p-2">
+                                <option value="0">Select Station</option>
+                            </select>
+                            <small class="text-danger" id="err-station"></small>
+                        </div>
+                        <div class="col-sm-4 pe-3">
+                            <label for="parameter" class="mb-2">Parameter</label>
+                            <div class="dropdown">
+                                <div class="d-grid">
+                                    <button type="button" class="btn btn-secondary btn-block p-2"
+                                        data-bs-toggle="dropdown">
+                                        <div class="row">
+                                            <div class="col-12" id="parameter">
+                                                {% if parameters %}
+                                                {% for i in parameters %}
+                                                {{i}},
+                                                {% endfor %}
+                                                {% else %}
+                                                Select Parameter
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </button>
+                                    <div class="dropdown-menu p-2">
+                                        <input type="checkbox" name="select-all" id="select-all" />&nbsp;&nbsp; Select
+                                        All <br />
+                                        <div id="parameters">
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <small class="text-danger" id="err-parameters"></small>
+                        </div>
+                        <div class="col-sm-4 pe-3">
+                            <label for="interval" class="mb-2">Interval</label>
+                            <select name="interval" id="interval" class="form-control p-2">
+                                <option value="15">15 Mins</option>
+                                <option value="30">30 Mins</option>
+                                <option value="60">1 Hour</option>
+                                <option value="480">8 Hours</option>
+                                <option value="720">12 Hours</option>
+                                <option value="1440">24 Hours</option>
+                            </select>
+                            <small class="text-danger" id="err-interval"></small>
+                        </div>
+                        <div class="col-sm-4 pe-3">
+                            <br>
+                            <label for="table">
+                                <input type="checkbox" value="true" id="table" name="view"> Table View
+                            </label>
+                        </div>
+                    </div><br>
+                    <input type="submit" class="btn btn-secondary px-4 py-1" name="submit" value="Filter" id="submit">
+                </form>
+            </div>
+        </div>
+    </div>
+</div><br>
+
+{% if data %}
+<div class="col" align="right">
+    Export Data:
+    <button
+        onclick="generate('Average Data', localStorage.getItem('category'), localStorage.getItem('site'), '{{selected_data.station}}', '{{selected_data.from}}', '{{selected_data.to}}', localStorage.getItem('count'))"
+        class="btn btn-primary p-2">
+        <span class="fas fa-file-pdf"></span>
+    </button>&nbsp;&nbsp;
+    <button
+        onclick="tablesToExcel(['data','statistics'], ['Average Data','Statistics Data'], localStorage.getItem('site')+' Average Data.xls', 'Excel')"
+        class="btn btn-primary p-2">
+        <span class="fas fa-file-excel"></span>
+    </button>
+</div>
+{% endif %}
+<br>
+
+{% if data %}
+<div class="row">
+    <div class="col-12">
+        <div class="table-responsive">
+            <table class="table tableFixHead table-bordered" id="data">
+                <thead class="bg-secondary text-white">
+                    <tr>
+                        <th>Timestamp</th>
+                        {% for parameter in parameters %}
+                        <th>{{parameter}}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody id="pasteData">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if charts_data %}
+<div class="row print-container">
+    <div class="col-12">
+        <div class="col mybutton" align="right">
+            Export Data:
+            <button onclick="window.print()" class="btn btn-primary p-2">
+                <span class="fas fa-file-pdf"></span>
+            </button>&nbsp;&nbsp;
+        </div>
+        <div class="card">
+            <div class="card-header p-2">
+                <h5>Data Trend</h5>
+            </div>
+            <div id="section-to-print">
+                <div id="div1">
+                    {% for chart_data in charts_data %}
+                    <div class="card-body p-2">
+
+                        {% include 'components/line-chart.html' with labels=chart_data.1 chart_range=chart_data.3 values=chart_data.2 label=chart_data.0 data=chart_data.2 %}
+
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endif %}
+<br>
+
+{% if stat_data %}
+<div class="row">
+    <div class="col-12">
+        <div class="table-responsive">
+            <table class="table tableFixHead table-bordered" id="statistics">
+                <thead class="bg-secondary text-white">
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Average</th>
+                        <th>Min</th>
+                        <th>Max</th>
+                        <th>Median</th>
+                        <th>Mode</th>
+                        <th>Std. Deviation</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for data in stat_data %}
+                    {% for key, values in data.items %}
+                    <tr>
+                        <td>{{key}}</td>
+                        {% for value in values %}
+                        <td>{{value}}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div><br><br>
+{% endif %}
+
+<script type="text/javascript">
+    let nav = 1;
+    function toggleNav() {
+        if (nav) {
+            document.getElementById("sidebar").classList.remove("d-none");
+            document.getElementById("sidebar").classList.remove("d-xl-block");
+            nav = 0;
+        } else {
+            document.getElementById("sidebar").classList.add("d-none");
+            document.getElementById("sidebar").classList.add("d-xl-block");
+            nav = 1;
+        }
+    }
+
+    function quickDate() {
+        var range = document.getElementById('quickrange').value;
+        var date = new Date();
+        var last = new Date(date.getTime() - (range * 24 * 60 * 60 * 1000))
+        var day = last.getDate();
+        if (day < 10) {
+            day = "0" + day;
+        }
+        var month = last.getMonth() + 1;
+        if (month < 10) {
+            month = "0" + month;
+        }
+        var year = last.getFullYear();
+        var hour = last.getHours();
+        var minute = last.getMinutes();
+        var fromDate = year + "-" + month + "-" + day + "T" + hour + ":" + minute;
+        document.getElementById('from').value = fromDate;
+
+        today = new Date();
+        var current_day = today.getDate();
+        if (current_day < 10) {
+            current_day = "0" + current_day;
+        }
+        var current_month = today.getMonth() + 1;
+        if (current_month < 10) {
+            current_month = "0" + current_month;
+        }
+        var current_year = today.getFullYear();
+        var current_hour = today.getHours();
+        var current_minute = today.getMinutes();
+        var toDate = current_year + "-" + current_month + "-" + current_day + "T" + current_hour + ":" + current_minute;
+        document.getElementById('to').value = toDate;
+    }
+
+    function fill_sites(category_id) {
+        $.getJSON("/sites/get-sites/", { id: category_id },
+            function (ret, textStatus) {
+                var options = '<option value="">Select Site</option>';
+                for (var i in ret) {
+                    if (ret[i].label == "{{selected_data.site}}") {
+                        options += '<option value="' + ret[i].label + '" selected="selected">' + ret[i].name + '</option>';
+                    } else {
+                        options += '<option value="' + ret[i].label + '">' + ret[i].name + '</option>';
+                    }
+                }
+                $("#site").html(options);
+            });
+    }
+    $(document).ready(function () {
+        $("#category").change(function () { fill_sites($(this).val()); });
+    });
+
+    function fill_station(site_id) {
+        $.getJSON("/sites/get-stations/", { id: site_id },
+            function (ret, textStatus) {
+                var options = '<option value="">Select Station</option>';
+                for (var i in ret) {
+                    if (ret[i].station == "{{selected_data.station}}") {
+                        options += '<option value="' + ret[i].station + '" selected="selected">' + ret[i].station + '</option>';
+                    } else {
+                        options += '<option value="' + ret[i].station + '">' + ret[i].station + '</option>';
+                    }
+                }
+                $("#station").html(options);
+            });
+    }
+    $(document).ready(function () {
+        $("#site").change(function () { fill_station($(this).val()); });
+    });
+
+    function displayparameter() {
+        var data = $('input[name="parameter"]:checked');
+        var selectall = $('input[name="select-all"]:checked');
+        if (data.length > 0) {
+            var resultData = '';
+            data.each(function () {
+                var selectedValue = $(this).val();
+                resultData += selectedValue + $('label[for="cb-' + selectedValue + '"]').text() + ", ";
+            });
+            $("#parameter").html(resultData);
+        }
+        else {
+            $("#parameter").html("Select Parameters");
+        }
+    }
+
+    {% if parameters %}
+    var selected_parameters = {{ parameters| safe}};
+    function fill_parameters(station_id) {
+        $.getJSON("/sites/get-parameters/", { id: station_id },
+            function (ret, textStatus) {
+                var options = '';
+                for (var i in ret) {
+                    found = 0;
+                    var parameter = ret[i].parameter;
+                    for (let k = 0; k < selected_parameters.length; k++) {
+                        if (parameter == selected_parameters[k]) {
+                            found = 1
+                            options += '<input type="checkbox" class="parameter-check" onclick="displayparameter()" checked id="box"' + i + ' name="parameter" value="' + ret[i].parameter + '" />&nbsp;&nbsp; ' + ret[i].parameter + ' <br>'
+                        }
+                    }
+                    if (found == 1) {
+                        continue;
+                    } else {
+                        options += '<input type="checkbox" class="parameter-check" onclick="displayparameter()" id="box"' + i + ' name="parameter" value="' + ret[i].parameter + '" />&nbsp;&nbsp; ' + ret[i].parameter + ' <br>';
+                    }
+                }
+                $("#parameters").html(options);
+            });
+    }
+    {% else %}
+    function fill_parameters(station_id) {
+        $.getJSON("/sites/get-parameters/", { id: station_id },
+            function (ret, textStatus) {
+                var options = '';
+                for (var i in ret) {
+                    options += '<input type="checkbox" class="parameter-check" onclick="displayparameter()" id="box"' + i + ' name="parameter" value="' + ret[i].parameter + '" />&nbsp;&nbsp; ' + ret[i].parameter + ' <br>'
+                }
+                $("#parameters").html(options);
+            });
+    }
+    {% endif %}
+
+    $(document).ready(function () {
+        $("#station").change(function () { fill_parameters($(this).val()); });
+    });
+
+    $('#select-all').click(function (event) {
+        if (this.checked) {
+            $('.parameter-check').each(function () {
+                this.checked = true;
+                $("#parameter").html("All Parameters Selected");
+            });
+        } else {
+            $('.parameter-check').each(function () {
+                this.checked = false;
+                $("#parameter").html("Select Parameter");
+            });
+        }
+    });
+
+    $(document).ready(function () {
+        {% if selected_data %}
+        var from = "{{selected_data.from}}"
+        var to = "{{selected_data.to}}"
+        var category = "{{selected_data.category}}"
+        var site = "{{selected_data.site}}"
+        var station = "{{selected_data.station}}"
+        var parameters = "{{selected_data.parameters}}"
+        var interval = "{{selected_data.interval}}"
+
+        fill_sites(category);
+        fill_station(site);
+        fill_parameters(station);
+
+        $('#from').val(from)
+        $('#to').val(to)
+        $('#category').val(category)
+        $('#interval').val(interval)
+
+        {% if data %}
+        var data = {{data|safe}}
+        function createTable(tableData) {
+            var tableBody = document.getElementById('pasteData');
+
+            tableData.forEach(function (rowData) {
+                var row = document.createElement('tr');
+
+                rowData.forEach(function (cellData) {
+                    var cell = document.createElement('td');
+                    cell.appendChild(document.createTextNode(cellData));
+                    row.appendChild(cell);
+                });
+
+                tableBody.appendChild(row);
+            });
+        }
+        createTable(data)
+        {% endif %}
+
+        localStorage.setItem("count", {{ parameters| length}})
+        {% endif %}
+        console.log("Working")
+
+        $('#category').change(function () {
+            localStorage.setItem("category", $('#category :selected').text());
+        });
+        $('#site').change(function () {
+            localStorage.setItem("site", $('#site :selected').text());
+        });
+    });
+
+    function validateFrom() {
+        var regexp = /^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2})$/;
+        var input = document.getElementById("from");
+        var error = document.getElementById("err-from");
+
+        if (regexp.test(input.value)) {
+            input.style.border = "1px solid green ";
+            error.style.display = "none ";
+            return true;
+        } else {
+            input.style.border = "1px solid red ";
+            error.innerHTML = "Invalid Date! "
+            error.style.display = "block ";
+            return false;
+        }
+    }
+
+    function validateTo() {
+        var regexp = /^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2})$/;
+        var input = document.getElementById("to");
+        var error = document.getElementById("err-to");
+
+        if (regexp.test(input.value)) {
+            input.style.border = "1px solid green ";
+            error.style.display = "none ";
+            return true;
+        } else {
+            input.style.border = "1px solid red ";
+            error.innerHTML = "Invalid Date! "
+            error.style.display = "block ";
+            return false;
+        }
+    }
+
+    function validateCategory() {
+        var input = document.getElementById("category");
+        var error = document.getElementById("err-category");
+        var value = input.value;
+
+        if (value != 0) {
+            input.style.border = "1px solid green ";
+            error.style.display = "none ";
+            return true;
+        } else {
+            input.style.border = "1px solid red ";
+            error.innerHTML = "Category not selected!"
+            error.style.display = "block ";
+            return false;
+        }
+    }
+
+    function validateSite() {
+        var input = document.getElementById("site");
+        var error = document.getElementById("err-site");
+        var value = input.value;
+
+        if (value != 0) {
+            input.style.border = "1px solid green ";
+            error.style.display = "none ";
+            return true;
+        } else {
+            input.style.border = "1px solid red ";
+            error.innerHTML = "Site not selected!"
+            error.style.display = "block ";
+            return false;
+        }
+    }
+
+    function validateStation() {
+        var input = document.getElementById("station");
+        var error = document.getElementById("err-station");
+        var value = input.value;
+
+        if (value != 0) {
+            input.style.border = "1px solid green ";
+            error.style.display = "none ";
+            return true;
+        } else {
+            input.style.border = "1px solid red ";
+            error.innerHTML = "Station not selected!"
+            error.style.display = "block ";
+            return false;
+        }
+    }
+
+    function validateParameter() {
+        var input = document.getElementById("parameters");
+        var error = document.getElementById("err-parameters");
+        var value = $('[name="parameter"]:checked').length;
+
+        if (value != 0) {
+            input.style.border = "1px solid green ";
+            error.style.display = "none ";
+            return true;
+        } else {
+            input.style.border = "1px solid red ";
+            error.innerHTML = "Atleast one Parameter should be selected!"
+            error.style.display = "block ";
+            return false;
+        }
+    }
+
+    function validateForm() {
+        if (validateFrom() && validateTo() && validateCategory() && validateSite() && validateStation() && validateParameter()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+</script>
+{% endblock %}
+
+<!-- function printContent(el) {
+        var restorepage = document.body.innerHTML;
+        var printcontent = document.getElementById(el).innerHTML;
+        document.body.innerHTML = printContent;
+        window.print();
+        document.body.innerHTML = restorepage;
+
+   } -->

@@ -1,0 +1,192 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+{% load convert_str_date %}
+{% block content %}
+
+{% include 'components/alert.html' %}
+<div class="row">
+    <div class="col-5 d-none d-md-block pb-2">
+        {% for key, values in site_data.items %}
+        <div class="row">
+            <div class="col-lg-9 col-sm-8 col-8">
+                <h3>{{values.2}}</h3>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="col-9 d-md-none pb-2">
+        {% for key, values in site_data.items %}
+        <div class="row">
+            <div class="col-lg-9 col-sm-8 col-8">
+                <h3>{{values.2}}</h3>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% if request.session.is_staff %}
+    <div class="col-5 d-none d-md-block pb-3" style="padding-right: 30px !important;">
+        <form action="" class="" method="get" id="siteForm">
+            <select name="id" class="form-control p-2 " onchange="submitForm()" id="site">
+                {% for site in sites %}
+                <option value="{{site.id}}">{{site.name}}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+    {% endif %}
+    
+    {% if not request.session.is_staff %}
+    <div class="col-5 d-none d-md-block">
+    </div>
+    {% endif %}
+
+    {% include 'pages/header.html'%}
+
+    {% if not request.session.is_staff %}
+    <div class="col-5 d-md-none">
+    </div>
+    {% endif %}
+    
+
+    {% if request.session.is_staff %}
+    <div class="d-md-none pb-3">
+        <form action="" class="" method="get" id="siteForm2">
+            <select name="id" class="form-control p-2 " onchange="submitForm2()" id="site2">
+                {% for site in sites %}
+                <option value="{{site.id}}">{{site.name}}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+    {% endif %}
+</div><br>
+
+{% for key, values in site_data.items %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body p-2">
+                <span class="fas fa-map-marker-alt text-danger"></span> <small
+                    class="text-secondary">{{values.6}}</small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <span class="fas fa-globe text-primary"></span> <small
+                    class="text-secondary">{{values.7}}</small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <span class="fas fa-industry text-secondary"></span> <small
+                    class="text-secondary">{{values.4}}</small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                {% if values.10 %}
+                <span class="fas fa-calendar-alt text-dark"></span> <small class="text-secondary">Last Sync:
+                    {{values.10|custom_date_time}}</small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                {% else %}
+                <span class="fas fa-calendar-alt text-dark"></span> <small class="text-secondary">Last Sync:
+                    None</small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                {% endif %}
+                <span class="fas fa-eye text-primary"></span> <small class="text-secondary">{{values.8}}</small>
+            </div>
+        </div>
+    </div>
+</div><br>
+{% endfor %}
+
+<!--Summary-->
+<div class="row">
+    <div class="col-md-9 p-2">
+        <div class="row">
+            <div class="col-md-3 col-6 mb-2" style="height: 150px;">
+                <div class="w-75 h-100 bg-primary text-center py-4 rounded">
+                    <p>{{first_value.6}}</p>
+                    <h1 class="text-white">{{first_value.12}}</h1>
+                    <small>
+                        {{first_value.7}}
+                    </small>
+                </div>
+            </div>
+    
+            <div class="col-md-3 col-6 mb-2" style="height: 150px;">
+                <div class="w-75 h-100 bg-warning text-center py-4 rounded">
+                    <p>Total</p>
+                    <h1 class="text-white">{{total.0}}</h1>
+                    <small>
+                        Monitoring Stations
+                    </small>
+                </div>
+            </div>
+    
+            <div class="col-md-3 col-6 mb-2" style="height: 150px;">
+                <div class="w-75 h-100 bg-success text-center py-4 rounded">
+                    <p>Total</p>
+                    <h1 class="text-white">{{total.1}}</h1>
+                    <small>Parameters</small>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-6 mb-2" style="height: 150px;">
+                <div class="w-75 h-100 bg-danger text-center py-4 rounded">
+                    <p class="text-white">Today's</p>
+                    <h1 class="text-white">
+                        {% for key, values in site_data.items %}
+                        {{values.11}}
+                        {% endfor %}
+                    </h1>
+                    <p class="text-white">Exceedance</p>
+                </div>
+            </div>
+        </div><br>
+        
+        {% if chart_data %}
+        <div class="row">
+            <div class="col-12 pe-2">
+                {% include 'components/line-chart.html' with labels=chart_data.1 chart_range=chart_data.3 values=chart_data.2 label=chart_data.0 data=chart_data.2 %}
+            </div>
+        </div><br>
+        {% endif %}
+    </div>
+
+    <div class="col-md-3 ml-5" style="max-height: 500px; overflow-y: auto;">
+        {% for values in realtime_values %}
+        <div class="card mb-2">
+            <a href="/site-summary?id={{id}}&parameter={{values.15}}">
+                <div class="card-body p-2">
+                    <p><b>{{values.4}}</b> {{values.6}}</p>
+                    <p>{{values.12}} {{values.7}}</p>
+                    <p><b>Std. Limit</b>: {% if 'pH' in values.6 %}{{values.8}} - {% endif %}{{values.9}} {{values.7}}</p>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    let nav = 1;
+    function toggleNav() {
+        if (nav) {
+            document.getElementById("sidebar").classList.remove("d-none");
+            document.getElementById("sidebar").classList.remove("d-xl-block");
+            nav = 0;
+        } else {
+            document.getElementById("sidebar").classList.add("d-none");
+            document.getElementById("sidebar").classList.add("d-xl-block");
+            nav = 1;
+        }
+    }
+    function submitForm() {
+        var site = document.getElementById("site").value;
+        document.getElementById("siteForm").submit();
+        localStorage.setItem('site', site)
+    }
+
+    $(document).ready(function () {
+        $('#site').val("{{id}}")
+    });
+
+    function submitForm2() {
+        var site = document.getElementById("site2").value;
+        document.getElementById("siteForm2").submit();
+        localStorage.setItem('site', site2)
+    }
+
+    $(document).ready(function () {
+        $('#site2').val("{{id}}")
+    });
+</script>
+{% endblock %}

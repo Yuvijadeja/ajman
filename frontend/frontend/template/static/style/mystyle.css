@@ -1,0 +1,170 @@
+@import url(https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700|Poppins:400,500&display=swap
+);
+
+*{
+    margin: 0;
+    padding: 0;
+}
+
+.background{
+    background: url('../images/bgajman2.jpeg');
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+}
+
+.content{
+    position: absolute;
+    top: 53%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    text-align: center;
+    padding: 60px 12px;
+    width: 370px;
+    z-index: 999;
+    background: rgba(255, 255, 255, 0.04);
+    box-shadow: 1.5px 1.5px 28px 14px rgba(0, 0, 0,0.20);
+    background-color: rgba(100, 100, 100, 0.1);
+    border-radius: 30px;
+}
+
+.content h1{
+    color:rgba(0, 0, 0);
+    font-size: 35px;
+    font-weight: 700;
+    margin: 0 0 35px 0;
+    font-family: 'Montserrat',sans-serif;
+}
+
+.content .logoajman{
+    margin-bottom: 20px;
+}
+
+.field{
+    position: relative;
+    height: 45px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.94);
+    display: flex;
+}
+
+.field span{
+    color: #222;
+    width: 40px;
+    line-height: 45px;
+}
+
+.field input{
+    height: 100%;
+    width: 100%;
+    background: transparent;
+    outline: none;
+    font-size: 14px;
+    font-family: 'Poppins',sans-serif;
+    border: none;
+
+}
+.space{
+    margin-top: 16px;
+
+}
+.show{
+    position: absolute;
+    font-size: 13px;
+    right: 13px;
+    color: #222;
+    display: none;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Montserrat',sans-serif;
+
+
+}
+.pass:valid ~ .show{
+    display: block;
+
+}
+
+.avatar{
+    border-radius: 50%;
+    margin: 20px;
+}
+
+.field input[type="submit"]{
+    background: #c523ca;
+    border: 1px solid hwb(308 2% 27%);
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: 'Montserrat',sans-serif;
+    color: #111;
+
+}
+.field input[type="submit"]{
+    background: hwb(308 2% 27%);
+}
+
+
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: rgba(100, 100, 100, 0.4);
+    color:rgba(0, 0, 0);
+    text-align: center;
+    font-weight: bold;
+    z-index: 999;
+  
+ }
+.signup{
+    font-size: 15px;
+    font-family: 'Poppins',sans-serif;
+    color: #fff;
+
+}
+
+.para{
+    color: white;
+}
+
+.footer a:hover{
+    color: black;
+}
+
+
+@media screen and (max-width: 452px){
+    .content{
+        width: 330px;
+        margin-top: 4px;
+    }
+
+    .avatar{
+        width:70px;
+        margin-top: 0;
+        margin-left: 40%;
+
+        
+    }
+}
+@media screen and (max-width: 410px){
+    .content{
+        width: 300px;
+    }
+   
+}
+@media screen and (max-width: 385px){
+    .content{
+        width: 280px;
+    }
+}
+@media screen and (max-width: 360px){
+    .content{
+        width: 260px;
+    }
+    .logoajman{
+        width:220px ;
+    }
+    
+   
+}

@@ -1,0 +1,184 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block content %}
+
+{% include 'components/alert.html' %}
+<div class="row">
+    <div class="col-lg-10 col-sm-9 col-9">
+        <h3>Parameters Summary</h3><br>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header p-2">
+                <h5>Filter Data</h5>
+            </div>
+            <div class="card-body p-2">
+                <form action="" method="post" onsubmit="return validateForm();">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-sm-4 pe-3">
+                            <label for="site" class="mb-2">Site</label>
+                            <select name="site" id="site" class="form-control p-2">
+                                <option value="">All</option>
+                                {% for site in sites %}
+                                <option value="{{site.label}}">{{site.name}}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-danger" id="err-site"></small>
+                        </div>
+                        <div class="col-sm-4">
+                            <label for="station" class="mb-2">Station</label>
+                            <select name="station" id="station" class="form-control p-2">
+                                <option value="">All</option>
+                            </select>
+                            <small class="text-danger" id="err-station"></small>
+                        </div>
+                    </div><br>
+                    <input type="submit" class="btn btn-secondary px-4 py-1" name="submit" value="Filter" id="submit">
+                </form>
+            </div>
+        </div>
+    </div>
+</div><br>
+
+<div class="row">
+    <div class="col-12">
+        <div class="input-group">
+            <span class="input-group-text">
+                <i class="fas fa-search px-3"></i>
+            </span>
+            <input type="text" class="form-control p-2" id="search" placeholder="Search...">
+        </div>
+    </div>
+</div><br>
+
+<div class="row">
+    <div class="col-12">
+        <div class="table-responsive">
+            <table class="table tableFixHead table-bordered" id="table">
+                <thead class="bg-secondary text-white">
+                    <tr>
+                        <th onclick="sortTable(0, 'table')">Site Name <span class="fas fa-sort"></span></th>
+                        <th>Site Label</th>
+                        <th onclick="sortTable(2, 'table')">Station <span class="fas fa-sort"></span></th>
+                        <th onclick="sortTable(3, 'table')">Parameter <span class="fas fa-sort"></span></th>
+                        <th>Unit</th>
+                        <th>Limit</th>
+                    </tr>
+                </thead>
+
+                <tbody id="rows">
+                    {% for parameter in parameters_response %}
+                    <tr>
+                        <td>{{parameter.site_name}}</td>
+                        <td>{{parameter.site_label}}</td>
+                        <td>{{parameter.station}}</td>
+                        <td>{{parameter.parameter}}</td>
+                        <td>{{parameter.unit}}</td>
+                        <td>
+                            {% if parameter.standard_limit == True %}
+                                {% if parameter.parameter == 'pH' %}
+                                    {{parameter.normal_min}} - {{parameter.normal_max}}
+                                {% else %}
+                                    {{parameter.normal_max}}
+                                {% endif %}
+                            {% else %}
+                                Not Applicable
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div><br>
+
+<script type="text/javascript">
+    let nav = 1;
+    function toggleNav() {
+        if (nav) {
+            document.getElementById("sidebar").classList.remove("d-none");
+            document.getElementById("sidebar").classList.remove("d-xl-block");
+            nav = 0;
+        } else {
+            document.getElementById("sidebar").classList.add("d-none");
+            document.getElementById("sidebar").classList.add("d-xl-block");
+            nav = 1;
+        }
+    }
+    
+    function fill_station(site_id){
+        $.getJSON("/stations/get-stations/", {id: site_id},
+        function(ret, textStatus) {
+            var options = '<option value="" selected="selected">Select Station</option>';
+            for (var i in ret) {
+                if (ret[i].station == "{{selected_data.station}}") {
+
+                    options += '<option value="' + ret[i].station + '" selected="selected">'+ ret[i].station + '</option>';
+                }
+                else{
+                    options += '<option value="' + ret[i].station + '">' + ret[i].station + '</option>';
+                }
+            }
+            $("#station").html(options);
+        });
+    }
+    $(document).ready(function () {
+        $("#site").change(function () { fill_station($(this).val()); });
+    });
+
+    $(document).ready(function () {
+        {% if selected_data %}
+        fill_station("{{selected_data.site}}");
+        $('#site').val("{{selected_data.site}}")
+        {% endif %} 
+    });
+
+    function validateSite() {
+        var input = document.getElementById("site");
+        var error = document.getElementById("err-site");
+        var value = input.value;
+
+        if (value != 0) {
+            input.style.border = "1px solid green ";
+            error.style.display = "none ";
+            return true;
+        } else {
+            input.style.border = "1px solid red ";
+            error.innerHTML = "Site not selected!"
+            error.style.display = "block ";
+            return false;
+        }
+    }
+
+    function validateStation() {
+        var input = document.getElementById("station");
+        var error = document.getElementById("err-station");
+        var value = input.value;
+
+        if (value != 0) {
+            input.style.border = "1px solid green ";
+            error.style.display = "none ";
+            return true;
+        } else {
+            input.style.border = "1px solid red ";
+            error.innerHTML = "Station not selected!"
+            error.style.display = "block ";
+            return false;
+        }
+    }
+
+    function validateForm() {
+        if (validateSite() && validateStation()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+</script>
+{% endblock %}

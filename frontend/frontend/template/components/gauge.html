@@ -1,0 +1,58 @@
+
+<div class="card mb-3">
+    <div class="card-body p-2">
+        <p class="text-center">{{parameter}} - {% if "None" in timestamp %}None{% else %}{{value}}{% endif %} {{unit}}</p><br>
+        <canvas id="parameter{{id}}" style="display: block; width: 100%; margin: auto;"></canvas>
+        <p><small><b>Last Sync</b>: {{timestamp}}</small></p>
+        <small><b>Today's Min</b>: {{today_min}}</small> &nbsp;
+        <small><b>Today's Max</b>: {{today_max}}</small>
+    </div>
+
+    <div class="card-footer p-2">
+        <p>
+            <small>{{device}}</small>
+            <a href="{% url 'delete-widget' %}?id={{id}}"><span style="float: right;" class="text-danger"><i class="fas fa-trash"></i></span></a>
+        </p>
+    </div>
+</div>
+
+<script>
+    var para{{id}}opts = {
+        angle: -0.2,
+        lineWidth: 0.2,
+        radiusScale: 1.0,
+        pointer: {
+            length: 0.5,
+            strokeWidth: 0.04,
+            color: '#000000'
+        },
+        limitMax: false,
+        limitMin: false,
+        highDpiSupport: true, 
+        staticLabels: {
+            font: "9px sans-serif",
+            labels: [{{l_min}}, {{n_min}}, {{n_max}}, {{u_max}}],
+            fractionDigits: 0
+        },
+        staticZones: [{
+            strokeStyle: "#DE3163",
+            min: {{l_min}},
+            max: {{l_max}}
+        }, {
+            strokeStyle: "#50C878",
+            min: {{n_min}},
+            max: {{n_max}}
+        }, {
+            strokeStyle: "#DE3163",
+            min: {{u_min}},
+            max: {{u_max}}
+        }, ],
+    };
+
+    var para{{id}} = new Gauge(document.getElementById('parameter{{id}}')).setOptions(para{{id}}opts);
+    console.log(para{{id}})
+    para{{id}}.maxValue = {{u_max}};
+    para{{id}}.setMinValue({{l_min}});
+    para{{id}}.set({{value}});
+    para{{id}}.animationSpeed = 32
+</script>

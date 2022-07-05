@@ -1,0 +1,140 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block content %}
+
+{% include 'components/alert.html' %}
+
+<div class="row">
+    <div class="col-lg-10 col-sm-9 col-9">
+        <h3>Overall Summary</h3><br>
+    </div>
+
+</div>
+
+<!--Summary-->
+<div class="col-12 p-2">
+    <div class="row">
+        <div class="col-md-3 col-sm-6 mb-2" style="height: 150px;">
+            <div class="w-75 h-100 bg-primary text-center py-4 rounded">
+                <p>Total Sites</p>
+                <h1 class="text-white">{{total_sites}}</h1>
+                <small>
+                    <b>Active</b>: {{site_status_data.0}}
+                    <b>Inactive</b>: {{site_status_data.1}}
+                    <b>Delayed</b>: {{site_status_data.2}}
+                </small>
+
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-2" style="height: 150px;">
+            <div class="w-75 h-100 bg-warning text-center py-4 rounded">
+                <p>Total Stations</p>
+                <h1 class="text-white">{{total_stations}}</h1>
+                <small>
+                    <b>Effluent</b>: {{station_data.0}}
+                    <b>Emission</b>: {{station_data.1}}
+                </small>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-2" style="height: 150px;">
+            <div class="w-75 h-100 bg-success text-center py-4 rounded">
+                <p>Total Parameters</p>
+                <h1 class="text-white">{{total_parameters.data}}</h1>
+            </div>
+        </div>
+    </div>
+</div>
+<br>
+
+
+<!--Site Status-->
+<div class="row">
+    <div class="col-lg-8 col-md-12 pe-3 pt-2">
+        <div class="card">
+            <div class="card-header p-2">
+                <h5>Site Status Trend (Last Week)</h5>
+            </div>
+            <div class="card-body p-2">
+                {% include 'components/bar-chart.html' with chart_data=bar_chart_data categories=site_status_date %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 col-sm-6 col-md-6 pe-3 pt-2">
+        <div class="card">
+            <div class="card-header p-2">
+                <h5>Site Status on 29-03-2022</h5>
+            </div>
+            <div class="card-body p-2">
+                {% include 'components/pie-chart.html' with labels=labels series=site_status_data id="siteStatus" %}
+            </div>
+        </div>
+    </div>
+
+
+<!--Charts-->
+
+    <div class="col-lg-4 col-sm-6 col-md-6 pe-3 pt-2">
+        <div class="table-responsive" style="height: 300px;">
+            <table class="table tableFixHead table-bordered" id="table">
+                <thead class="bg-secondary text-white">
+                    <tr>
+                        <th>Site</th>
+                        <th>Today's Exceedance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if realtime_site.data %}
+                    {% for key, values in realtime_site.data.items %}
+                    <tr>
+                        <td>{{values.2}}</td>
+                        <td>{{values.11}}</td>
+                    </tr>
+                    {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-lg-4 col-sm-6 col-md-6 pe-3 pt-2">
+        <div class="card">
+            <div class="card-header p-2">
+                <h5>Categorywise Sites</h5>
+            </div>
+            <div class="card-body p-2">
+                {% include 'components/pie-chart.html' with labels=category_label series=category_series id="categorywise" %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 col-sm-6 col-md-6 pt-2">
+        <div class="card">
+            <div class="card-header p-2">
+                <h5>Statewise Sites</h5>
+            </div>
+            <div class="card-body p-2">
+                {% include 'components/pie-chart.html' with labels=state_label series=state_series id="statewise" %}
+            </div>
+        </div>
+    </div>
+</div><br><br>
+
+<script>
+    let nav = 1;
+    function toggleNav() {
+        if (nav) {
+            document.getElementById("sidebar").classList.remove("d-none");
+            document.getElementById("sidebar").classList.remove("d-xl-block");
+            nav = 0;
+        } else {
+            document.getElementById("sidebar").classList.add("d-none");
+            document.getElementById("sidebar").classList.add("d-xl-block");
+            nav = 1;
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+{% load convert_str_date %}
+{% block content %}
+
+    {% include 'components/alert.html' %}
+    <div class="row">
+        <div class="col-lg-10 col-sm-9 col-9">
+            <h3>Notifications</h3><br>
+        </div>
+      
+    </div>
+
+    {% for notification in notifications %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body p-2">
+                    <div class="row device">
+                        <div class="col-1">
+                            <h3 class="text-center"><span class="fas fa-bell text-warning"></span></h3>
+                        </div>
+                        <!-- {{notifications}} -->
+                        <div class="col-10">
+                            <b>{{notification.verb}}</b><br>
+                            {{notification.description}}<br>
+                            <small>Time: {{notification.timestamp|custom_date_time}}</small>
+                        </div>
+                        <div class="col-1">
+                            <a href="">
+                                <h3 class="text-center"><a href="{% url 'notification-delete' %}?id={{notification.id}}"><span class="fas fa-trash text-danger"></span></a></h3>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><br>
+    {% endfor %}
+
+    {% if notifications %}
+    <!--Pagination-->
+    <div class="row">
+        <div class="col-12">
+            <ul class="pagination justify-content-center">
+                {% if previous == None %}
+                <li class="page-item"><a class="page-link" name="previous" disabled href="">Prev</a></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" name="previous" href="?link={{previous}}">Prev</a></li>
+                {% endif %}
+                {% if next == None %}
+                <li class="page-item"><a class="page-link" name="next" href="">Next</a></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" name="next" href="?link={{next}}">Next</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+    <br/>
+
+ <style>
+    a.disabled:hover {
+        cursor: not-allowed;
+    }
+ </style>
+ <script>
+     let nav = 1;
+    function toggleNav() {
+        if (nav) {
+            document.getElementById("sidebar").classList.remove("d-none");
+            document.getElementById("sidebar").classList.remove("d-xl-block");
+            nav = 0;
+        } else {
+            document.getElementById("sidebar").classList.add("d-none");
+            document.getElementById("sidebar").classList.add("d-xl-block");
+            nav = 1;
+        }
+    }
+ </script>  
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+{% block content %}
+    {% include 'components/alert.html' %}
+    <div class="row p-2">
+        <div class="col-lg-10 col-sm-9 col-9">
+            <h3>{{site_name}}</h3>
+        </div>
+        <div class="col-lg-2 col-3">
+            <h2 class="text-end"><a href="{% url 'dashboard-setup' %}"><span class="fas fa-plus-circle"></span></a></h2>
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        {% for values in data %}
+            {% if "Card" in values.0 %}
+            <div class="col-auto p-2">
+                {% include 'components/card.html' with widget=values.0 id=values.1 value=values.6 unit=values.4 parameter=values.3 timestamp=values.5 device=values.2 today_min=values.7 today_max=values.8 n_min=values.13 n_max=values.14 %}
+            </div>
+            {% endif %}
+            {% if "Gauge" in values.0 %}
+            <div class="col-auto p-2">
+                {% include 'components/gauge.html' with widget=values.0 id=values.1 value=values.6 unit=values.4 parameter=values.3 timestamp=values.5 device=values.2 today_min=values.7 today_max=values.8 l_min=values.9 l_max=values.10 u_min=values.11 u_max=values.12 n_min=values.13 n_max=values.14 %}
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div><br>
+    
+    <script>
+        let nav = 1;
+        function toggleNav() {
+            if (nav) {
+                document.getElementById("sidebar").classList.remove("d-none");
+                document.getElementById("sidebar").classList.remove("d-xl-block");
+                nav = 0;
+            } else {
+                document.getElementById("sidebar").classList.add("d-none");
+                document.getElementById("sidebar").classList.add("d-xl-block");
+                nav = 1;
+            }
+        }
+    </script>
+{% endblock %}

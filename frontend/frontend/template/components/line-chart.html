@@ -1,0 +1,84 @@
+<canvas id="para{{chart_range.id}}_Chart" width="400" height="150"></canvas>
+<script>
+  const para{{chart_range.id}}_data = {
+    labels: {{labels|safe}},
+    datasets: [{
+      label: {{label|safe}},
+      data: {{values|safe}},
+	  borderColor: '#3C096C',
+	  backgroundColor: '#9D4EDD'
+    }]
+  };
+
+  const para{{chart_range.id}}_config = {
+    type: 'line',
+    data: para{{chart_range.id}}_data,
+    options: {
+        scales: {
+			y: {
+					max: {{chart_range.upper_max}},
+					min: {{chart_range.lower_min}}
+			},
+            x: {
+                type: 'time',
+				time: {
+					unit: 'hour'
+				},
+				ticks: {
+					maxTicksLimit: 15
+				}
+            },
+        },
+        plugins: {
+            autocolors: false,
+			{% if chart_range.standard_limit %}
+            annotation: {
+                annotations: {
+                    line1: {
+						type: 'line',
+						yMin: {{chart_range.normal_max}},
+						yMax: {{chart_range.normal_max}},
+						borderColor: 'rgb(255, 99, 132)',
+						borderWidth: 2,
+                    },
+					label1: {
+						type: 'label',
+						position: 'right',
+						yValue: {{chart_range.normal_max}},
+						backgroundColor: 'rgba(245,245,245)',
+						content: ['Std. Limit: {{chart_range.normal_max}}',],
+						font: {
+							size: 14
+						}
+					},
+					{% if chart_range.normal_min > 0 %}
+						line2: {
+							type: 'line',
+							yMin: {{chart_range.normal_min}},
+							yMax: {{chart_range.normal_min}},
+							borderColor: 'rgb(255, 99, 132)',
+							borderWidth: 2,
+						},
+						label2: {
+							type: 'label',
+							position: 'right',
+							yValue: {{chart_range.normal_min}},
+							backgroundColor: 'rgba(245,245,245)',
+							content: ['Std. Limit: {{chart_range.normal_min}}',],
+							font: {
+								size: 14
+							}
+						}
+					{% endif %}
+                }
+            }
+			{% endif %}
+        }
+    }
+  };
+
+  const para{{chart_range.id}}_Chart = new Chart(
+    document.getElementById('para{{chart_range.id}}_Chart'),
+    para{{chart_range.id}}_config
+  );
+</script>

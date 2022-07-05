@@ -1,0 +1,66 @@
+<canvas id="multiaxis_chart"></canvas>
+<script>
+    const data = {
+        labels: {{timestamp|safe}},
+        datasets: [
+            {
+                label: "{{labels.0}}",
+                data: {{dataset1|safe}},
+                borderColor: "red",
+                yAxisID: 'y',
+            },
+            {
+                label: "{{labels.1}}",
+                data: {{dataset2|safe}},
+                borderColor: "blue",
+                yAxisID: 'y1',
+            }
+        ]
+    }
+
+    const config = {
+        type: 'line',
+        data:  data,
+        options: {
+            responsive: true,
+            interaction: {
+            mode: 'index',
+            intersect: false,
+            },
+            stacked: false,
+            plugins: {
+            title: {
+                display: true,
+                text: 'Parameter Comparison'
+            }
+            },
+            scales: {
+            y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+            },
+            y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+
+                grid: {
+                drawOnChartArea: false, // only want the grid lines for one axis to show up
+                },
+            },
+            x: {
+                type: 'time',
+        				time: {
+        					unit: 'hour'
+        				},
+        				ticks: {
+        					maxTicksLimit: 15
+        				}
+              },
+            }
+        },
+    };
+
+    const chart = new Chart(document.getElementById('multiaxis_chart'),config);
+</script>

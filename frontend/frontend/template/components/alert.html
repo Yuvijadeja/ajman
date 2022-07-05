@@ -1,0 +1,7 @@
+<!--alert-->
+{% if messages %} {% for message in messages %}
+<div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{message.tags}}{% endif %} alert-dismissible fade show p-2">
+    <button type="button" class="btn-close pt-2 pe-2" data-bs-dismiss="alert"></button>
+    <strong style="text-transform: capitalize;">{{message.tags}}!</strong> {{message}}
+</div>
+{% endfor %} {% endif %}

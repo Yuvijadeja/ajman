@@ -1,0 +1,89 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static  'style/mystyle.css'%}">
+    <script src="https://kit.fontawesome.com/b9c2a21e79.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+
+    <title>Envicrafts | Technicrafts Enviro Solutions</title>
+</head>
+
+<body>
+    <div class="background">
+        <div>
+            <img src="{% static 'images/etc.jpg'%}" height="80" width="90" class="avatar">
+        </div>
+    </div>
+
+        {% if messages %} {% for message in messages %}
+        <div
+            class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{message.tags}}{% endif %} alert-dismissible fade show p-2">
+            <button type="button" class="close pt-2 pe-2" data-dismiss="alert">&times;</button>
+            <strong style="text-transform: capitalize;">{{message.tags}}!</strong> {{message}}
+        </div>
+        {% endfor %} {% endif %}
+        <div class="content">
+
+            <div>
+                <img src="{% static  'images/logoajman.png'%}" class="logoajman" height="90" width="250">
+                <br>
+            </div>
+            
+            <!-- <img src="img/logoaj.png" class="logoajman" height="40" width="30"> -->
+            <form action="" name="myForm" onsubmit=" return validateForm() " method="post">
+                {% csrf_token %}
+                <div class="field">
+                    <span class="fa-solid fa-user"></span>
+                    <input type="text" name="username" id="username" placeholder="username">
+                </div>
+                <div class="field space">
+                    <span class="fa-solid fa-lock"></span>
+                    <input type="password" name="password" id="password" class="pass" placeholder="Password">
+                    <span class="show">show</span>
+                </div><br>
+
+                <div class="field">
+                    <input type="submit" class="button" value="Login">
+                </div>
+            </form>
+        </div>
+
+    <!-- </div> -->
+    <!-- <div class="footer">
+        <img src="img/logo2.png" height="30" width="35">
+        <span style="padding-bottom: 30px !important;"> technicrafsy </span>
+    </div> -->
+    <div class="footer">
+        <p><img src="{% static 'images/logo2.png' %}" height="40px" width="40px"> <span ><a class="para"
+                     href="http://technicrafts.com">Technicrafts Enviro Solutions. </span></a></p>
+
+    </div>
+    <script>
+        const pass_field = document.querySelector('.pass');
+        const showbtn = document.querySelector('.show');
+
+        showbtn.addEventListener('click', function () {
+            if (pass_field.type === "password") {
+                pass_field.type = "text";
+                showbtn.textContent = "Hide";
+                showbtn.style.color = "#3498db"
+
+            }
+            else {
+                pass_field.type = "password";
+                showbtn.textContent = "Show";
+                showbtn.style.color = "#222";
+
+            }
+        });
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,201 @@
+{% load static %}
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="icon" href="{% static 'images/favicon.ico' %} ">
+  <title>EnviCrafts | TechniCrafts Enviro Solutions</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css"
+    integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+    crossorigin="" />
+  <link rel="stylesheet" href="{% static 'style/style.css' %}">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.3/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation/dist/chartjs-plugin-annotation.min.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+    integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+    crossorigin=""></script>
+    <script src="{% static 'gauge/dist/gauge.js' %}"></script>
+</head>
+
+<body>
+  <div class="container-fluid">
+    <!--Topbar-->
+    <div class="topbar d-xl-none d-block ">
+      <div class="row">
+        <div class="col-10">
+          <ul class="logo p-3">
+            <li class="brand-logo">
+              <img src="{% static 'images/logoaj.png'%}" width="36px" height="32px" alt="technicrafts logo">
+            </li>
+            <li class="brand-name"><b>Ajman Free Zone</b></li>
+          </ul>
+        </div>
+        <div class="col-2 text-right">
+          <ul class="rightbar">
+            <li>
+              <a href="javascript:void(0);" onclick="toggleNav()">
+                <span class="fas fa-bars" style="font-size: 18px;"></span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!--Sidebar-->
+    <div class="sidebar d-xl-none d-none" id="sidebar">
+      <div id="accordion">
+        <ul class="menu">
+
+          <li class="menu-item">
+            <a href="#dashboard" data-bs-toggle="collapse">
+              <span class="fas fa-tachometer-alt"></span>&nbsp;&nbsp;&nbsp;&nbsp;Dashboard
+            </a>
+            <ul id="dashboard" class="collapse" data-bs-parent="#accordion">
+              <li><a href="{% url 'realtime-data' %}">
+                  &nbsp;<span class="fas fa-angle-double-right"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Realtime Data
+                </a></li>
+              <li><a href="{% url 'dashboard' %}">
+                  &nbsp;<span class="fas fa-angle-double-right"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Dashboard
+                </a></li>
+            </ul>
+          </li>
+
+          <li class="menu-item">
+            <a href="{% url 'map-view' %}">
+              <span class="fas fa-map-marker-alt"></span>&nbsp;&nbsp;&nbsp;&nbsp;Map View
+            </a>
+          </li>
+
+          <li class="menu-item">
+            <a href="{% url 'average' %}">
+              <span class="fas fa-chart-bar"></span>&nbsp;&nbsp;&nbsp;&nbsp;Reports
+            </a>
+          </li>
+
+          <li class="menu-item">
+            <a href="{% url 'set-up' %}">
+              <span class="fas fa-cog"></span>&nbsp;&nbsp;&nbsp;&nbsp;Setup
+            </a>
+          </li>
+
+          <li class="menu-item">
+            <a href="{% url 'audit-logs' %}">
+              <span class="fas fa-history"></span>&nbsp;&nbsp;&nbsp;&nbsp;Audit Logs
+            </a>
+          </li>
+
+          <li class="menu-item">
+            <a class="nav-link text-white" href="{% url 'my-account' %}">
+              <span style="color: white;" class="fas fa-user-tie"></span>&nbsp;&nbsp;&nbsp;&nbsp;My Account
+            </a>
+          </li>
+
+          <li class="menu-item">
+            <a class="nav-link text-white" href="{% url 'notifications' %}">
+              <span style="color: white;" class="fas fa-bell"></span>&nbsp;&nbsp;&nbsp;&nbsp;Notifications
+            </a>
+          </li>
+
+          <li class="menu-item">
+            <a href="{% url 'logout' %}">
+              <span class="fas fa-power-off"></span>&nbsp;&nbsp;&nbsp;&nbsp;Logout
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <!-- navstart -->
+    <nav class="navbar navbar-expand-lg" style="background-color: #3c096c !important;">
+      <div class="container-fluid">
+        <ul class="logo p-1">
+          <li class="brand-logo">
+            <img src="{% static 'images/logoaj.png'%}" class="mb-1 mt-1 m-1" width="50px" height="45px" alt="Ajmanlogo">
+               
+          </li>
+          <li class="brand-name"><span class="h3"><b>Ajman Free Zone</b></span></li>
+        </ul>
+        <div class="float-end m-2">
+          <div class="collapse navbar-collapse" id="navbarScroll">
+            <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle text-white" href="#" id="navbarScrollingDropdown" role="button"
+                  data-bs-toggle="dropdown" aria-expanded="false">
+                  Dashboard
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarScrollingDropdown">
+                  <li><a class="dropdown-item text-white" style="background-color:#3c096c" href="{% url 'realtime-data' %}">Realtime Data</a></li>
+                  <li><a class="dropdown-item text-white" style="background-color:#3c096c" href="{% url 'dashboard' %}">Dashboard</a></li>
+                </ul>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active text-white" aria-current="page" href="{% url 'map-view' %}">Map View</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link text-white " href="{% url 'average' %}">Reports</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link text-white " href="{% url 'set-up' %}">Setup</a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link text-white" href="{% url 'audit-logs' %}">Audit Logs</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link text-white" href="{% url 'my-account' %}">
+                  <h5> <span style="color: white;" class="fas fa-user-tie"></span></h5>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link text-white" href="{% url 'notifications' %}">
+                  <h5> <span style="color: white;" class="fas fa-bell"></span></h5>
+                </a>
+              </li>
+           
+              <li class="nav-item">
+                <a class="nav-link text-white" href="{% url 'logout' %}"><h5><span style="color: white;" class="fas fa-power-off"></span></h5></a>
+              </li>
+            </ul>
+
+          </div>
+        </div>
+      </div>
+    </nav>
+    <!-- navend -->
+    <!-- mainpart -->
+    <div class="main-part pt-3 pe-3" style="min-height: 700px;">
+      {% block content %}{% endblock %}
+    </div><br>
+
+    <!--Footer-->
+    <footer style="position: fixed; bottom: 0; display: block; width: 100%; z-index: 9999 !important;">       
+        <p><a href="http://technicrafts.com">
+          <span class="text-white"> &copy; 2021 Technicrafts Enviro Solutions.</span>
+        </a></p>
+    </footer>
+  </div>
+</body>
+<script src="{% static 'script/search.js' %}"></script>
+<script src="{% static 'script/sort-table.js' %}"></script>
+<script src="{% static 'script/pdf.js' %}"></script>
+<script src="{% static 'script/excel.js' %}"></script>
+<script src="{% static 'script/pdf-data.js' %}"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.6/jspdf.plugin.autotable.min.js"></script>
+
+</html>

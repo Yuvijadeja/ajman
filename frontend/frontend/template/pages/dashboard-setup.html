@@ -1,0 +1,106 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block content %}
+
+    {% include 'components/alert.html' %}
+    <div class="row">
+        <div class="col-lg-10 col-sm-9 col-9">
+            <h3>Dashboard Setup </h3><br>
+        </div>
+        {% include 'pages/header.html'%}
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header p-2">
+                    <h5>Add Widget</h5>
+                </div>
+                <div class="card-body p-2">
+                    <form action="" method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-sm-6 pe-3 pb-4">
+                                <label for="site">Sites</label>
+                                <select name="site" id="site" v-model="selected_data.site" class="form-control p-2">
+                                    <option value="">Select site</option>
+                                    {% for site in sites %}
+                                    <option value="{{site.id}}">{{site.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="error" id="err-site"></span>
+                            </div>
+                            <div class="col-sm-6 pe-3 pb-4">
+                                <label for="station">Station</label>
+                                <select name="station" id="station" v-model="selected_data.station" class="form-control p-2">
+                                    <option value="0">Select Station</option>
+                                </select>
+                                <span class="error" id="err-station"></span>
+                            </div>
+                            <div class="col-sm-6 pe-3 pb-4">
+                                <label for="parameter">Parameter</label>
+                                <select name="parameter" id="parameter" v-model="selected_data.parameter" class="form-control p-2">
+                                    <option value="0">Select Parameter</option>
+                                </select>
+                                <span class="error" id="err-parameter"></span>
+                            </div>
+                            <div class="col-sm-6 pe-3 pb-4">
+                                <label for="widget">Widget Type</label><br>
+                                <input type="radio" name="widget" value="Card" checked> Card
+                                <input type="radio" name="widget" value="Gauge"> Gauge
+                            </div>
+                            <div class="col-sm-6 pe-3 pb-4">
+                                <button type="submit" class="btn btn-secondary px-4 py-1">Save</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div><br>
+
+    <script type="text/javascript">
+        let nav = 1;
+        function toggleNav() {
+            if (nav) {
+                document.getElementById("sidebar").classList.remove("d-none");
+                document.getElementById("sidebar").classList.remove("d-xl-block");
+                nav = 0;
+            } else {
+                document.getElementById("sidebar").classList.add("d-none");
+                document.getElementById("sidebar").classList.add("d-xl-block");
+                nav = 1;
+            }
+        }
+        function fill_station(site_id){
+            $.getJSON("/sites/get-stations", {label: site_id},
+            function(ret, textStatus) {
+                var options = '<option value="" selected="selected">Select Station</option>';
+                for (var i in ret) {
+                options += '<option value="' + ret[i].id + '">'
+                    + ret[i].station + '</option>';
+                }
+                $("#station").html(options);
+            });
+        }
+        $(document).ready(function() {
+            $("#site").change(function() { fill_station($(this).val()); });
+        });
+
+        function fill_parameters(site_id) {
+            $.getJSON("/sites/get-parameters/", {station: site_id},
+            function(ret, textStatus) {
+                var options = '<option value="0" selected="selected">Select Parameter</option>';
+                for (var i in ret) {
+                options += '<option value="' + ret[i].id + '">'
+                    + ret[i].parameter + '</option>';
+                }
+                $("#parameter").html(options);
+            });
+        }
+        $(document).ready(function() {
+            $("#station").change(function() { fill_parameters($(this).val()); });
+        });
+    </script>
+
+{% endblock %}
